@@ -1,0 +1,743 @@
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background-color: #99c3ec; 
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-attachment: fixed;
+            font-family: "Inter", sans-serif;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        /* Contenedor principal para el menú y el contenido */
+        #mainContent {
+            height: 100%;
+            overflow: hidden;
+            transition: filter 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 1320px; /* Ancho ajustado */
+        }
+        /* Estilo para aplicar el desenfoque cuando el modal está activo */
+        #mainContent.blurry {
+            filter: blur(5px);
+        }
+        /* Estilos del menú */
+        .menu {
+            background-color: #fff;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px 0 rgba(0, 0, 0, 0.075);
+            padding: 5px;
+            bottom: 5px;
+            max-width: 90vw;
+        }
+        .link {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 90px;
+            height: 45px;
+            border-radius: 8px;
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+            transform-origin: center left;
+            transition: width 0.2s ease-in;
+            text-decoration: none;
+            color: inherit;
+        }
+        .link:before {
+            content: "";
+            display: block;
+            position: absolute;
+            z-index: -1;
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
+            top: 0;
+            transform: translateX(100%);
+            transition: transform 0.2s ease-in;
+            transform-origin: center right;
+            background-color: #eee;
+        }
+        .link:hover,
+        .link:focus,
+        .link.active {
+            outline: 0;
+            width: 220px; 
+        }
+        .link:hover:before,
+        .link:focus:before,
+        .link.active:before {
+            transform: translateX(0);
+        }
+        .link:hover .link-title,
+        .link:focus .link-title,
+        .link.active .link-title {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        .link-icon {
+            width: 28px;
+            height: 28px;
+            display: block;
+            flex-shrink: 0;
+            left: 18px;
+            position: absolute;
+        }
+        .link-icon svg {
+            width: 28px;
+            height: 28px;
+        }
+        /* 2. Aseguramos que el texto no se rompa ni se encime */
+        .link-title {
+            transform: translateX(100%);
+            transition: transform 0.2s ease-in;
+            transform-origin: center right;
+            display: block;
+            text-align: left; /* Cambio recomendado: alinear a la izquierda se ve mejor en menús expandibles */
+            padding-left: 55px; /* Ajuste: Espacio para que no choque con el icono */
+            width: 100%; 
+            opacity: 0;
+            
+            /* PROPIEDAD CLAVE AGREGADA: */
+            white-space: nowrap; /* Evita que el texto baje a una segunda línea */
+        }
+
+        /* Estilos del contenedor principal */
+        .container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            padding: 10px;
+            background-color: white;
+            border-radius: 40px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2),
+            0 30px 70px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 1;
+            max-height: 88vh;
+            overflow-y: auto; 
+            height: 100%;
+            box-sizing: border-box;
+        }
+
+        /* Estilos de los modales */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+            display: none; /* Inicia oculto */
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        .modal {
+            background: white;
+            border-radius: 12px;
+            padding: 20px 30px;
+            text-align: center;
+            width: 320px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+        .modal h2 {
+            margin-bottom: 20px;
+            color: #03519e;
+        }
+        .modal button {
+            margin: 10px;
+            padding: 10px 18px;
+            border: none;
+            border-radius: 8px;
+            background: #03519e;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .modal button:hover {
+            background: #01265c;
+        }
+        .modal input[type="text"] {
+            width: 90%;
+            padding: 10px;
+            margin: 15px 0;
+            font-size: 16px;
+            border-radius: 8px;
+            border: 1px solid #03519e;
+            text-align: center;
+        }
+        .error-msg {
+            color: red;
+            margin-top: 5px;
+            font-size: 0.9rem;
+            min-height: 20px;
+        }
+        .modal-loading {
+            margin: 10px 0;
+            font-style: italic;
+            color: #555;
+        }
+
+        .formulario {
+            text-align: left; 
+        }
+        .coolinput {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            margin-bottom: 12px; 
+        }
+
+        .coolinput label.text {
+            font-size: 0.9rem; /* Aumenta el tamaño de la fuente */
+            color: #03519e;
+            font-weight: 700;
+            position: relative;
+            top: 0.5rem;
+            margin: 0 0 0 7px;
+            padding: 0 3px;
+            background: white;
+            width: fit-content;
+        }
+        .coolinput input[type="text"].input,
+        .coolinput input[type="password"].input{
+            padding: 11px 10px;
+            font-size: 0.75rem;
+            border: 2px #03519e solid;
+            border-radius: 15px;
+            background: white;
+        }
+        .coolinput input[type="text"].input:focus,
+        .coolinput input[type="password"].input:focus,
+        .coolinput input[type="date"].input:focus {
+            outline: none;
+        }
+        .fila-filtros .coolinput .fecha-label {
+        color: #D9251D;
+        }
+        .coolinput input[type="date"].input{
+            padding: 11px 10px;
+            font-size: 0.75rem;
+            border: 2px #D9251D solid;
+            border-radius: 15px;
+            background: white;
+        }
+        .form-flex {
+            display: flex;
+            justify-content: space-between;
+            gap: 32px;
+            flex-wrap: wrap;
+        }
+        .grupo-form {
+            flex: 1 1 45%;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .titulo-seccion {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #03519e;
+            margin-bottom: 4px;
+            border-bottom: 1px solid #d1d5db;
+            padding-bottom: 4px;
+            text-align: left; /* Alineación a la izquierda */
+        }
+        .fila-inputs {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .coolinput {
+            flex: 1;
+            min-width: 100px;
+        }
+        .separador {
+            width: 1px;
+            background-color: #e0e0e0;
+            margin: 0 8px;
+            min-height: 100%;
+        }
+        @media (max-width: 768px) {
+            .form-flex {
+                flex-direction: column;
+            }
+            .fila-inputs {
+                flex-direction: column;
+            }
+            .separador {
+                display: none;
+            }
+        }
+    .icon-buttons {
+        display: flex;
+        align-items: center; /* Centra los elementos verticalmente */
+        gap: 10px;
+        padding: 2px;
+        width: 280px;
+        /* justify-content: flex-start;  <-- No es necesario si usas margin: auto */
+    }
+
+    .icon-btn {
+        width: 40px;
+        height: 35px;
+        border: none;
+        background-color: #03519e;
+        color: white;
+        border-radius: 50%;
+        font-size: 15px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .icon-btn:hover {
+        background-color: #01265c;
+    }
+
+    .icon-btn i {
+        pointer-events: none;
+    }
+
+    ::-webkit-scrollbar {
+        width: 6px; 
+        height: 6px; 
+    }
+
+    ::-webkit-scrollbar-track {
+        background: transparent; 
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background-color: #888; 
+        border-radius: 4px; 
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background-color: #555; 
+    }
+
+    /* Para Firefox */
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: #888 transparent; 
+    }
+
+    /* ⭐ Nuevo estilo para el contenedor de fecha y hora */
+    .datetime-display {
+        font-size: 0.9em;
+        font-weight: 500;
+        color: #666;
+        margin-left: auto; /* Empuja el elemento a la derecha */
+    }
+        #morbilidad-section {
+            margin-top: -40px;
+        }
+    /* Estilos para el contenedor de la grilla de enfermedades */
+    .morbilidad-grid {
+        display: grid;
+        /* Muestra 4 columnas en pantallas grandes */
+        grid-template-columns: repeat(5, 1fr); 
+        gap: 15px;
+        font-size: 15px;
+        margin-top: 15px;
+    }
+        /* Estilos para que los checkboxes y labels se muestren correctamente */
+        .morbilidad-item {
+            display: flex;
+            align-items: center;
+            gap: 6px; /* Espacio entre el checkbox y el texto */
+            cursor: pointer;
+        }
+    /* Media queries para adaptar el grid a pantallas más pequeñas */
+    @media (max-width: 1200px) {
+        .morbilidad-grid {
+            /* En pantallas de menos de 1200px, muestra 3 columnas */
+            grid-template-columns: repeat(4, 1fr); 
+        }
+    }
+
+    @media (max-width: 992px) {
+        .morbilidad-grid {
+            /* En pantallas de menos de 992px, muestra 2 columnas */
+            grid-template-columns: repeat(3, 1fr); 
+        }
+    }
+
+    @media (max-width: 768px) {
+        .morbilidad-grid {
+            /* En pantallas de menos de 768px, muestra 1 columna */
+            grid-template-columns: repeat(2, 1fr); 
+        }
+    }
+
+    .consulta-container {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        margin-top: -55px;
+    }
+
+    .titulo-seccion {
+        font-size: 1rem;
+        color:red;
+        margin-bottom: 15px;
+        border-bottom: 2px solid #ccc;
+        padding-bottom: 5px;
+    }
+
+    .form-filtros {
+        display: flex;
+        flex-direction: column;
+        gap: 20px; /* Espacio entre la fila de inputs y el botón */
+    }
+
+    .fila-filtros {
+        display: flex;
+        align-items: flex-end;
+        gap: 15px; /* Espacio entre los inputs */
+        flex-wrap: wrap; 
+    }
+
+    .fila-boton {
+        display: flex;
+        justify-content: center; /* ⭐ CENTRA EL BOTÓN */
+        width: 100%;
+    }
+
+    .btn-buscar,
+    .btn-generar,
+    #btnDescargarReporte,
+    #btnEnviarReporte {
+        padding: 10px 20px;
+        background-color: #03519e;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-buscar:hover,
+    .btn-generar:hover,
+    #btnDescargarReporte:hover {
+        background-color: #0056b3;
+    }
+
+    .resultados-container {
+        width: 100%;
+        margin-top: 20px;
+        overflow-x: auto; /* Permite desplazamiento horizontal en pantallas pequeñas */
+    }
+
+    .styled-table {
+        width: 100%;
+        border-collapse: collapse; 
+        margin: 25px 0;
+        font-size: 0.9em;
+        font-family: sans-serif;
+        min-width: 400px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+        border-radius: 8px; 
+    }
+
+    .styled-table thead tr {
+        background-color: #03519e;
+        color: #ffffff;
+        text-align: left;
+    }
+
+
+
+    .styled-table th,
+    .styled-table td {
+        padding: 12px 15px;
+        text-align: left;
+    }
+
+    .styled-table tbody tr {
+        border-bottom: 1px solid #dddddd;
+    }
+
+    .styled-table tbody tr:nth-of-type(even) {
+        background-color: #f3f3f3; /* Color de fondo para filas pares */
+    }
+
+    .styled-table tbody tr:last-of-type {
+        border-bottom: 2px solid #03519e; /* Borde más grueso en la última fila */
+    }
+
+    .styled-table tbody tr.active-row {
+        font-weight: bold;
+        color: #03519e;
+    }
+
+    /* Estilo para los mensajes cuando no hay resultados */
+    .no-results {
+        text-align: center;
+        color: #888;
+        margin-top: 20px;
+        font-size: 1.2em;
+    }
+
+    /* ⭐ Opcional: Estilos para mejorar la responsividad en móviles ⭐ */
+    @media (max-width: 768px) {
+        .styled-table thead {
+            display: none; /* Oculta el encabezado de la tabla */
+        }
+
+        .styled-table, .styled-table tbody, .styled-table tr, .styled-table td {
+            display: block; /* Muestra cada celda como un bloque */
+            width: 100%;
+        }
+        
+        .styled-table tr {
+            margin-bottom: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .styled-table td {
+            text-align: right;
+            padding-left: 50%; /* Espacio para la etiqueta */
+            position: relative;
+        }
+        
+        .styled-table td::before {
+            content: attr(data-label);
+            position: absolute;
+            left: 0;
+            width: 50%;
+            padding-left: 15px;
+            font-weight: bold;
+            text-align: left;
+            color: #555;
+        }
+    }
+
+    .loader {
+        border: 4px solid #f3f3f3; /* Light grey */
+        border-top: 4px solid #03519e; /* Blue */
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite;
+        margin: 20px auto;
+    }
+
+    .loading-message {
+        text-align: center;
+        color: #666;
+        font-style: italic;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    /* Nuevo estilo para el modal de alerta */
+    #customAlertModal .modal {
+        text-align: center;
+        width: 30%;
+        max-width: 400px;
+        padding: 1rem;
+    }
+
+    #customAlertModal .modal h2 {
+        color: #03519E;
+        font-size: 1.5em;
+        margin-bottom: 0.5rem;
+    }
+
+    #customAlertModal .modal p {
+        color: #333;
+        font-size: 1.4em;
+        margin-bottom: 1rem;
+    }
+
+    .modal .close-btn {
+        position: absolute;
+        top: -5px; /* Ajuste para subir el botón */
+        right: -5px;
+        background: none;
+        border: none;
+        font-size: 24px;
+        font-weight: bold;
+        cursor: pointer;
+        color: #aaa;
+        transition: color 0.3s ease;
+        outline: none; /* Propiedad para quitar el borde al hacer clic */
+    }
+
+    .modal .close-btn:hover,
+    .modal .close-btn:focus,
+    .modal .close-btn:active {
+        background: none;
+        border: none;
+        outline: none;
+        color: #333; /* Mantén el color oscuro al pasar el ratón */
+    }
+
+    
+.morbilidad-grid-container {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(232px, 1fr));
+    gap: 20px;
+    margin-top: 5px;
+    padding: 5px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.categoria-box {
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 0 10px 16px rgba(0, 0, 0, 0.2);
+    background-color: #f9fafb;
+    display: flex;
+    flex-direction: column;
+    min-height: 250px; 
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.categoria-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.categoria-box .categoria-titulo {
+    font-weight: bold;
+    font-size: 0.9em;
+    margin-bottom: 10px;
+    text-align: center;
+    color: #334155;
+    white-space: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-bottom: 2px solid #03519e;
+    padding-bottom: 5px;
+}
+
+.enfermedades-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    font-size: 0.9em;
+    flex-grow: 1;
+    overflow-y: auto; 
+    padding-right: 5px;
+}
+
+.checkbox-item {
+    display: flex;
+    align-items: flex-start;
+    cursor: pointer;
+    font-size: 14px;
+    color: #4b5563;
+}
+
+.checkbox-item input[type="checkbox"] {
+    margin-right: 8px;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+/* Media queries para la grilla de morbilidad */
+@media (max-width: 1200px) {
+    .morbilidad-grid-container {
+        grid-template-columns: repeat(4, minmax(180px, 1fr));
+    }
+}
+@media (max-width: 992px) {
+    .morbilidad-grid-container {
+        grid-template-columns: repeat(3, minmax(180px, 1fr));
+    }
+}
+@media (max-width: 768px) {
+    .morbilidad-grid-container {
+        grid-template-columns: repeat(2, minmax(180px, 1fr));
+    }
+}
+@media (max-width: 576px) {
+    .morbilidad-grid-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Alinea los títulos de la tabla a la izquierda */
+.reporte-tabla th {
+    text-align: left;
+}
+.reporte-tabla td {
+    text-align: left;
+}
+
+.reporte-tabla .text-right {
+    text-align: right;
+}
+
+.reporte-tabla td.categoria-celda {
+    background-color: #f2f2f2;
+    font-weight: bold;
+    vertical-align: top; 
+}
+
+/* Estilos para el contenedor de la imagen */
+.logo-container {
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    padding: 20px; /* Un poco de espacio alrededor */
+    /* height: calc(100vh - 120px);  Si necesitas una altura específica, ajusta los 120px a tu menú/header/footer */
+}
+
+/* Estilos para la imagen del logo */
+.logo-grande {
+    max-width: 600px; 
+    width: 90%;     
+    height: auto;    
+    margin: 0;       
+    display: block; 
+}
+
+/* Para pantallas más pequeñas */
+@media (max-width: 768px) {
+    .logo-grande {
+        max-width: 95%; /* En pantallas pequeñas, puede ocupar un poco más de ancho */
+    }
+}
+
+/* Puedes añadir más breakpoints si lo necesitas */
+@media (max-width: 480px) {
+    .logo-grande {
+        max-width: 100%; /* En móviles, que ocupe casi todo el ancho */
+    }
+}
